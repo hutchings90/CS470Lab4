@@ -157,21 +157,21 @@ class MDP:
 			'60p2': {}
 		}
 
-		self.solve(self.surgeryNodes30p1)
-		rewardIndex = self.solve(self.surgeryNodes60p1)
-		self.report(ret, '30p1', self.surgeryNodes30p1, self.surveillanceNodes30p1, rewardIndex)
+		surgery30p1RewardIndex = self.solve(self.surgeryNodes30p1)
+		surgery60p1RewardIndex = self.solve(self.surgeryNodes60p1)
+		surveillance30p1RewardIndex = self.solve(self.surveillanceNodes30p1)
+		surveillance60p1RewardIndex = self.solve(self.surveillanceNodes60p1)
 
-		self.solve(self.surveillanceNodes30p1)
-		rewardIndex = self.solve(self.surveillanceNodes60p1)
-		self.report(ret, '60p1', self.surgeryNodes60p1, self.surveillanceNodes60p1, rewardIndex)
+		self.report(ret, '30p1', self.surgeryNodes30p1, self.surveillanceNodes30p1, surveillance30p1RewardIndex, surgery30p1RewardIndex)
+		self.report(ret, '60p1', self.surgeryNodes60p1, self.surveillanceNodes60p1, surveillance60p1RewardIndex, surgery60p1RewardIndex)
 
-		# self.solve(self.surgeryNodes30p2)
-		# self.solve(self.surgeryNodes60p2)
-		# self.report(ret, '30p2', self.surgeryNodes30p2, self.surveillanceNodes30p2)
+		# surgery30p2RewardIndex = self.solve(self.surgeryNodes30p2)
+		# surgery60p2RewardIndex = self.solve(self.surgeryNodes60p2)
+		# surveillance30p2RewardIndex = self.solve(self.surveillanceNodes30p2)
+		# surveillance60p2RewardIndex = self.solve(self.surveillanceNodes60p2)
 
-		# self.solve(self.surveillanceNodes30p2)
-		# self.solve(self.surveillanceNodes60p2)
-		# self.report(ret, '60p2', self.surgeryNodes60p2, self.surveillanceNodes60p2)
+		# self.report(ret, '30p2', self.surgeryNodes30p2, self.surveillanceNodes30p2, surveillance30p2RewardIndex, surgery30p2RewardIndex)
+		# self.report(ret, '60p2', self.surgeryNodes60p2, self.surveillanceNodes60p2, surveillance60p2RewardIndex, surgery60p2RewardIndex)
 
 		return ret
 
@@ -195,11 +195,11 @@ class MDP:
 			rewardIndex = (rewardIndex + 1) % 2
 		return rewardIndex
 
-	def report(self, ret, k, surgeryNodes, surveillanceNodes, rewardIndex):
+	def report(self, ret, k, surgeryNodes, surveillanceNodes, surveillanceRewardIndex, surgeryRewardIndex):
 		for i in range(len(surgeryNodes)):
-			surgeryNode = surgeryNodes[i]
 			surveillanceNode = surveillanceNodes[i]
-			if surveillanceNode.rewards[rewardIndex] > surgeryNode.rewards[rewardIndex]:
+			surgeryNode = surgeryNodes[i]
+			if surveillanceNode.rewards[surveillanceRewardIndex] > surgeryNode.rewards[surgeryRewardIndex]:
 				ret[k][surgeryNode.name] = 'surveillance'
 			else:
 				ret[k][surgeryNode.name] = 'surgery'
