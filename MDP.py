@@ -3,7 +3,7 @@ from Neighbor import Neighbor
 
 class MDP:
 	threshold = .1
-	surgeryWeights30 = [
+	surgeryWeights30p1 = [
 		[1],
 		[.05, .95],
 		[.06, .94],
@@ -19,7 +19,7 @@ class MDP:
 		[.1, .9],
 		[.1, .9]
 	]
-	surgeryWeights60 = [
+	surgeryWeights60p1 = [
 		[1],
 		[.05, .95],
 		[.07, .93],
@@ -35,7 +35,7 @@ class MDP:
 		[.27, .73],
 		[.29, .71]
 	]
-	surveillanceWeights30 = [
+	surveillanceWeights30p1 = [
 		[1],
 		[.01, .99],
 		[.1, .1, .6, .2],
@@ -51,7 +51,7 @@ class MDP:
 		[.2, .54, .26],
 		[.16, .84]
 	]
-	surveillanceWeights60 = [
+	surveillanceWeights60p1 = [
 		[1],
 		[.09, .91],
 		[.2, .1, .5, .2],
@@ -68,11 +68,28 @@ class MDP:
 		[.31, .69]
 	]
 
+	surgeryWeights30p2 = [
+		
+	]
+	surgeryWeights60p2 = [
+		
+	]
+	surveillanceWeights30p2 = [
+		
+	]
+	surveillanceWeights60p2 = [
+		
+	]
+
 	def __init__(self):
-		self.surgeryNodes30 = self.makeSurgeryNodes(MDP.surgeryWeights30, 30)
-		self.surgeryNodes60 = self.makeSurgeryNodes(MDP.surgeryWeights60, 60)
-		self.surveillanceNodes30 = self.makeSurveillanceNodes(MDP.surveillanceWeights30, 30)
-		self.surveillanceNodes60 = self.makeSurveillanceNodes(MDP.surveillanceWeights60, 60)
+		self.surgeryNodes30p1 = self.makeSurgeryNodes(MDP.surgeryWeights30p1, 30)
+		self.surgeryNodes60p1 = self.makeSurgeryNodes(MDP.surgeryWeights60p1, 60)
+		self.surveillanceNodes30p1 = self.makeSurveillanceNodes(MDP.surveillanceWeights30p1, 30)
+		self.surveillanceNodes60p1 = self.makeSurveillanceNodes(MDP.surveillanceWeights60p1, 60)
+		# self.surgeryNodes30p2 = self.makeSurgeryNodes(MDP.surgeryWeights30p2, 30)
+		# self.surgeryNodes60p2 = self.makeSurgeryNodes(MDP.surgeryWeights60p2, 60)
+		# self.surveillanceNodes30p2 = self.makeSurveillanceNodes(MDP.surveillanceWeights30p2, 30)
+		# self.surveillanceNodes60p2 = self.makeSurveillanceNodes(MDP.surveillanceWeights60p2, 60)
 
 	def makeSurgeryNodes(self, weights, age):
 		cure = 100 - age
@@ -134,99 +151,58 @@ class MDP:
 
 	def run(self):
 		ret = {
-			'30': {},
-			'60': {}
+			'30p1': {},
+			'60p1': {},
+			'30p2': {},
+			'60p2': {}
 		}
 
-		greatestChange = 0
-		rewardIndex = 0
-		tempRewardIndex = 1
-		changed = True
-		while(changed):
-			changed = False
-			for node in self.surgeryNodes30:
-				total = 0
-				for neighbor in node.neighbors:
-					total += neighbor.weight * neighbor.node.rewards[rewardIndex]
-				node.rewards[tempRewardIndex] = total
-				change = abs(node.rewards[tempRewardIndex] - node.rewards[rewardIndex])
-				if change > greatestChange:
-					greatestChange = change
-					changed = True
-			tempRewardIndex = rewardIndex
-			rewardIndex = (rewardIndex + 1) % 2
+		self.solve(self.surgeryNodes30p1)
+		rewardIndex = self.solve(self.surgeryNodes60p1)
+		self.report(ret, '30p1', self.surgeryNodes30p1, self.surveillanceNodes30p1, rewardIndex)
 
-		greatestChange = 0
-		rewardIndex = 0
-		tempRewardIndex = 1
-		changed = True
-		while(changed):
-			changed = False
-			for node in self.surveillanceNodes30:
-				total = 0
-				for neighbor in node.neighbors:
-					total += neighbor.weight * neighbor.node.rewards[rewardIndex]
-				node.rewards[tempRewardIndex] = total
-				change = abs(node.rewards[tempRewardIndex] - node.rewards[rewardIndex])
-				if change > greatestChange:
-					greatestChange = change
-					changed = True
-			rewardIndex = tempRewardIndex
-			tempRewardIndex = (rewardIndex + 1) % 2
+		self.solve(self.surveillanceNodes30p1)
+		rewardIndex = self.solve(self.surveillanceNodes60p1)
+		self.report(ret, '60p1', self.surgeryNodes60p1, self.surveillanceNodes60p1, rewardIndex)
 
-		for i in range(len(self.surgeryNodes30)):
-			surgeryNode = self.surgeryNodes30[i]
-			surveillanceNode = self.surveillanceNodes30[i]
-			if surveillanceNode.rewards[rewardIndex] > surgeryNode.rewards[rewardIndex]:
-				ret['30'][surgeryNode.name] = 'surveillance'
-			else:
-				ret['30'][surgeryNode.name] = 'surgery'
-	
-		greatestChange = 0
-		rewardIndex = 0
-		tempRewardIndex = 1
-		changed = True
-		while(changed):
-			changed = False
-			for node in self.surgeryNodes60:
-				total = 0
-				for neighbor in node.neighbors:
-					total += neighbor.weight * neighbor.node.rewards[rewardIndex]
-				node.rewards[tempRewardIndex] = total
-				change = abs(node.rewards[tempRewardIndex] - node.rewards[rewardIndex])
-				if change > greatestChange:
-					greatestChange = change
-					changed = True
-			tempRewardIndex = rewardIndex
-			rewardIndex = (rewardIndex + 1) % 2
+		# self.solve(self.surgeryNodes30p2)
+		# self.solve(self.surgeryNodes60p2)
+		# self.report(ret, '30p2', self.surgeryNodes30p2, self.surveillanceNodes30p2)
 
-		greatestChange = 0
-		rewardIndex = 0
-		tempRewardIndex = 1
-		changed = True
-		while(changed):
-			changed = False
-			for node in self.surveillanceNodes60:
-				total = 0
-				for neighbor in node.neighbors:
-					total += neighbor.weight * neighbor.node.rewards[rewardIndex]
-				node.rewards[tempRewardIndex] = total
-				change = abs(node.rewards[tempRewardIndex] - node.rewards[rewardIndex])
-				if change > greatestChange:
-					greatestChange = change
-					changed = True
-			tempRewardIndex = rewardIndex
-			rewardIndex = (rewardIndex + 1) % 2
-
-		for i in range(len(self.surgeryNodes60)):
-			surgeryNode = self.surgeryNodes60[i]
-			surveillanceNode = self.surveillanceNodes60[i]
-			if surveillanceNode.rewards[rewardIndex] > surgeryNode.rewards[rewardIndex]:
-				ret['60'][surgeryNode.name] = 'surveillance'
-			else:
-				ret['60'][surgeryNode.name] = 'surgery'
+		# self.solve(self.surveillanceNodes30p2)
+		# self.solve(self.surveillanceNodes60p2)
+		# self.report(ret, '60p2', self.surgeryNodes60p2, self.surveillanceNodes60p2)
 
 		return ret
+
+	def solve(self, nodes):
+		greatestChange = 0
+		rewardIndex = 0
+		tempRewardIndex = 1
+		changed = True
+		while(changed):
+			changed = False
+			for node in nodes:
+				total = 0
+				for neighbor in node.neighbors:
+					total += neighbor.weight * neighbor.node.rewards[rewardIndex]
+				node.rewards[tempRewardIndex] = total
+				change = abs(node.rewards[tempRewardIndex] - node.rewards[rewardIndex])
+				if change > greatestChange:
+					greatestChange = change
+					changed = True
+			tempRewardIndex = rewardIndex
+			rewardIndex = (rewardIndex + 1) % 2
+		return rewardIndex
+
+	def report(self, ret, k, surgeryNodes, surveillanceNodes, rewardIndex):
+		for i in range(len(surgeryNodes)):
+			surgeryNode = surgeryNodes[i]
+			surveillanceNode = surveillanceNodes[i]
+			if surveillanceNode.rewards[rewardIndex] > surgeryNode.rewards[rewardIndex]:
+				ret[k][surgeryNode.name] = 'surveillance'
+			else:
+				ret[k][surgeryNode.name] = 'surgery'
 
 	def p(self):
 		pass
