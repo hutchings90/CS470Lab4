@@ -228,8 +228,10 @@ class MDP:
 		# self.report(ret, '60p1', self.surgeryNodes60p1, self.surveillanceNodes60p1, surveillance60p1RewardIndex, surgery60p1RewardIndex)
 
 		# surgery30p2RewardIndex = self.solve(self.surgeryNodes30p2)
+		print('p2 surgery utilities')
 		surgery60p2RewardIndex = self.solve(self.surgeryNodes60p2)
 		# surveillance30p2RewardIndex = self.solve(self.surveillanceNodes30p2)
+		print('p2 surveillance utilities')
 		surveillance60p2RewardIndex = self.solve(self.surveillanceNodes60p2)
 
 		# self.report(ret, '30p2', self.surgeryNodes30p2, self.surveillanceNodes30p2, surveillance30p2RewardIndex, surgery30p2RewardIndex)
@@ -255,6 +257,9 @@ class MDP:
 					changed = True
 			tempRewardIndex = rewardIndex
 			rewardIndex = (rewardIndex + 1) % 2
+			for node in nodes:
+				print(node.rewards[rewardIndex])
+			print('iterated\n')
 		return rewardIndex
 
 	def report(self, ret, k, surgeryNodes, surveillanceNodes, surveillanceRewardIndex, surgeryRewardIndex):
