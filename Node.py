@@ -3,7 +3,10 @@ from Neighbor import Neighbor
 class Node:
 	def __init__(self, name, neighbors, reward):
 		self.name = name
-		self.rewards = [reward, None]
+		self.reward = reward
+		self.utility = reward
+		self.tempUtility = reward
+		self.policy = 'surveillance'
 		self.neighbors = []
 		for neighbor in neighbors:
 			self.neighbors.append(Neighbor(neighbor[0], neighbor[1]))
