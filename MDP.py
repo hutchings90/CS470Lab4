@@ -5,7 +5,7 @@ class MDP:
 	threshold = .1
 	gamma = .9
 
-	surgeryWeights30p1 = [
+	surgeryWeights30 = [
 		[1],
 		[.05, .95],
 		[.06, .94],
@@ -21,7 +21,7 @@ class MDP:
 		[.1, .9],
 		[.1, .9]
 	]
-	surgeryWeights60p1 = [
+	surgeryWeights60 = [
 		[1],
 		[.05, .95],
 		[.07, .93],
@@ -69,60 +69,46 @@ class MDP:
 		[.30, .5, .2],
 		[.31, .69]
 	]
-
-	surgeryWeights30p2 = [
-		
-	]
-	surgeryWeights60p2 = [
-		[1],
-		[0.4395, 0.5605],
-		[0.4234, 0.5766],
-		[0.4085, 0.5915],
-		[0.3948, 0.6052],
-		[0.3823, 0.6177],
-		[0.371, 0.629],
-		[0.3609, 0.6391],
-		[0.352, 0.648],
-		[0.3443, 0.6557],
-		[0.3378, 0.6622],
-		[0.3325, 0.6675],
-		[0.3284, 0.6716],
-		[0.3255, 0.6745]
-	]
-	surveillanceWeights30p2 = [
-		
-	]
 	surveillanceWeights60p2 = [
 		[1],
 		[0.09, 0.91],
-		[0.2, 0.1, 0.3, 0.2, 0.2,],
-		[0.21, 0.09, .3, 0.2, 0.2,],
-		[0.22, 0.08, 0.3, 0.2, 0.2,],
-		[0.23, 0.07, .3, 0.2, 0.2,],
-		[0.24, 0.06, 0.3, 0.2, 0.2,],
-		[0.25, 0.05, .3, 0.2, 0.2,],
-		[0.26, 0.04, 0.3, 0.2, 0.2,],
-		[0.27, 0.03, .3, 0.2, 0.2,],
-		[0.28, 0.02, 0.3, 0.2, 0.2,],
-		[0.29, 0.01, .3, 0.2, 0.2,],
-		[0.3, .5, 0.2,],
+		[0.1, 0.8, 0.0, 0.05, 0.05],
+		[0.11, 0.8, 0.0, 0.05, 0.05],
+		[0.12, 0.8, 0.0, 0.05, 0.05],
+		[0.13, 0.8, 0.0, 0.05, 0.05],
+		[0.14, 0.8, 0.0, 0.05, 0.05],
+		[0.15, 0.8, 0.0, 0.05, 0.05],
+		[0.16, 0.8, 0.0, 0.05, 0.05],
+		[0.17, 0.8, 0.0, 0.05, 0.05],
+		[0.18, 0.8, 0.0, 0.05, 0.05],
+		[0.19, 0.8, 0.0, 0.05, 0.05],
+		[0.3, .5, 0.2],
 		[0.31, 0.69]
 	]
 
 	def __init__(self):
-		self.surgeryNodes30p1 = self.makeSurgeryNodes(MDP.surgeryWeights30p1, 30)
-		self.surgeryNodes60p1 = self.makeSurgeryNodes(MDP.surgeryWeights60p1, 60)
+		self.surgeryNodes30p1 = self.makeSurgeryNodes(MDP.surgeryWeights30, 30, False)
+		self.surgeryNodes60p1 = self.makeSurgeryNodes(MDP.surgeryWeights60, 60, False)
 		self.surveillanceNodes30p1 = self.makeSurveillanceNodes(MDP.surveillanceWeights30p1, 30)
 		self.surveillanceNodes60p1 = self.makeSurveillanceNodes(MDP.surveillanceWeights60p1, 60)
 
-		# self.surgeryNodes30p2 = self.makeSurgeryNodesp2(MDP.surgeryWeights30p2, 30)
-		self.surgeryNodes60p2 = self.makeSurgeryNodes(MDP.surgeryWeights60p2, 60)
-		# self.surveillanceNodes30p2 = self.makeSurveillanceNodesp2(MDP.surveillanceWeights30p2, 30)
+		self.surgeryNodes60p2 = self.makeSurgeryNodes(MDP.surgeryWeights60, 60, False)
 		self.surveillanceNodes60p2 = self.makeSurveillanceNodesp2(MDP.surveillanceWeights60p2, 60)
 
-	def makeSurgeryNodes(self, weights, age):
+		self.surgeryNodes60p22 = self.makeSurgeryNodes(MDP.surgeryWeights60, 60, True)
+		self.surveillanceNodes60p22 = self.makeSurveillanceNodes(MDP.surveillanceWeights60p1, 60)
+
+		self.surgeryNodes60p23 = self.makeSurgeryNodes(MDP.surgeryWeights60, 60, True)
+		self.surveillanceNodes60p23 = self.makeSurveillanceNodesp2(MDP.surveillanceWeights60p2, 60, )
+
+	def makeSurgeryNodes(self, weights, age, useHighAAA):
 		cure = 100 - age
 		aaa = .9 * cure
+		if useHighAAA:
+			print('using highAAA')
+			highAAA = .95 * cure
+		else:
+			highAAA = aaa
 		node1 = Node('Dead', [], -100)
 		# node1.neighbors = [Neighbor(node1, weights[0][0])]
 		node2 = Node('no AAA', [], cure)
@@ -134,11 +120,11 @@ class MDP:
 		node7 = Node('45-50 mm', [[node1, weights[6][0]], [node2, weights[6][1]]], aaa)
 		node8 = Node('50-55 mm', [[node1, weights[7][0]], [node2, weights[7][1]]], aaa)
 		node9 = Node('55-60 mm', [[node1, weights[8][0]], [node2, weights[8][1]]], aaa)
-		node10 = Node('60-65 mm', [[node1, weights[9][0]], [node2, weights[9][1]]], aaa)
-		node11 = Node('65-70 mm', [[node1, weights[10][0]], [node2, weights[10][1]]], aaa)
-		node12 = Node('70-75 mm', [[node1, weights[11][0]], [node2, weights[11][1]]], aaa)
-		node13 = Node('75-80 mm', [[node1, weights[12][0]], [node2, weights[12][1]]], aaa)
-		node14 = Node('>80 mm', [[node1, weights[13][0]], [node2, weights[13][1]]], aaa)
+		node10 = Node('60-65 mm', [[node1, weights[9][0]], [node2, weights[9][1]]], highAAA)
+		node11 = Node('65-70 mm', [[node1, weights[10][0]], [node2, weights[10][1]]], highAAA)
+		node12 = Node('70-75 mm', [[node1, weights[11][0]], [node2, weights[11][1]]], highAAA)
+		node13 = Node('75-80 mm', [[node1, weights[12][0]], [node2, weights[12][1]]], highAAA)
+		node14 = Node('>80 mm', [[node1, weights[13][0]], [node2, weights[13][1]]], highAAA)
 		return [
 			node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11, node12, node13, node14
 		]
@@ -217,15 +203,19 @@ class MDP:
 		ret = {
 			'30p1': {},
 			'60p1': {},
-			'30p2': {},
-			'60p2': {}
+			'60p2': {},
+			'60p22': {},
+			'60p23': {}
 		}
 
 		ret['30p1'] = self.solve(self.surgeryNodes30p1, self.surveillanceNodes30p1)
 		ret['60p1'] = self.solve(self.surgeryNodes60p1, self.surveillanceNodes60p1)
 
-		# ret['30p2'] = self.solve(self.surgeryNodes30p2, self.surveillanceNodes30p2)
 		ret['60p2'] = self.solve(self.surgeryNodes60p2, self.surveillanceNodes60p2)
+
+		ret['60p22'] = self.solve(self.surgeryNodes60p22, self.surveillanceNodes60p22)
+
+		ret['60p23'] = self.solve(self.surgeryNodes60p23, self.surveillanceNodes60p23)
 
 		return ret
 
@@ -261,11 +251,6 @@ class MDP:
 				change = abs(surgeryNode.utility - surgeryNode.tempUtility)
 				if change > greatestChange:
 					greatestChange = change
-
-				if surgeryNode.tempUtility != surveillanceNode.tempUtility or surgeryNode.utility != surveillanceNode.utility:
-					print('error. Surgery and Surveillance utilities mismatch')
-				if surgeryNode.reward != surveillanceNode.reward:
-					print('error. Surgery and Surveillance rewards mismatch')
 			if greatestChange > MDP.threshold:
 				changed = True
 			for nodeI in r:
